@@ -8,6 +8,13 @@ under QEMU. Two goals drive the design:
 2. **Stay extensible** — clean seams at each layer boundary so features can be
    added later without rewrites.
 
+**North star:** the end goal is an OS that boots and runs on a *real physical
+computer*, not just under QEMU. QEMU is the development environment; real
+hardware is the finish line.
+
+The roadmap is also aligned to cover the four programming labs
+(Linker, Scheduler, VMM, I/O Scheduling) as *real* subsystems rather than
+simulators — see the "Lab" column below.
 
 Reference companion: MIT's **xv6-riscv** (read it as the map; this is the
 territory we build ourselves).
@@ -81,7 +88,8 @@ applicable) realizes one of the course labs as a real subsystem.
 | 8   | Block device & I/O scheduler | virtio-blk driver + a request queue with pluggable policy | The block layer | **4** (LOOK/CLOOK/FLOOK) |
 | 9   | Filesystem & program loading | VFS layer + a concrete FS; load and run user ELF binaries | Persistence; **ELF loading = load-time relocation** | **1** (loader) |
 | 10  | Demand paging & replacement | Page-fault-driven swap; victim selection | Paging under memory pressure | **3** (FIFO/Clock/NRU/Aging/WS) |
-| 11+ | Beyond | IPC, multi-hart (SMP), optional microkernel refactor | Real-system breadth | — |
+| 11  | Beyond | IPC, multi-hart (SMP), optional microkernel refactor | Real-system breadth | — |
+| 12  | Real hardware: boot & install | Real bootloader + firmware handoff; bootable disk/USB/SD image; retire the `-kernel` shortcut | **The finish line** — runs on a physical machine (the project's final goal) | — |
 
 **On the labs vs. the real thing:** the labs are deterministic simulators; One OS
 is interrupt- and trap-driven. They're complementary — the labs give us reference
@@ -90,6 +98,14 @@ machinery to plug into. Labs 2 and 3 already mandate the exact mechanism-vs-poli
 design used in `sched/` and the device model below, so their subclasses port in
 with little change. (Lab 4's seek algorithms matter least on virtio hardware —
 there it's mainly the block-layer architecture being exercised.)
+
+**On reaching real hardware (Milestone 12):** the `-bios none -kernel` boot we
+use today is a QEMU development shortcut that skips real boot machinery. Getting
+to a physical machine means a proper bootloader, the firmware handoff, and a
+bootable image — plus a target-hardware choice: a real RISC-V board (keeps
+everything built so far) or an x86_64 port (reuses the generic layers, rewrites
+the `arch/` floor). The choice can wait; the early milestones are identical
+either way.
 
 ---
 
@@ -132,3 +148,4 @@ the roadmap gradually erects the wall between kernel (S) and processes (U).
 - `--build-id=none` + the `/DISCARD/` block in `kernel.ld`: stop stray
   `.note`/`.eh_frame` metadata sections from being placed ahead of `.text` and
   stealing address 0x80000000 from `_start` (which boots to silence).
+
