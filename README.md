@@ -8,9 +8,6 @@ under QEMU. Two goals drive the design:
 2. **Stay extensible** — clean seams at each layer boundary so features can be
    added later without rewrites.
 
-The roadmap is also aligned to cover the four CSCI-GA.2250 programming labs
-(Linker, Scheduler, VMM, I/O Scheduling) as *real* subsystems rather than
-simulators — see the "Lab" column below.
 
 Reference companion: MIT's **xv6-riscv** (read it as the map; this is the
 territory we build ourselves).
